@@ -1,6 +1,7 @@
 package sqlstat
 
 import (
+	"database/sql"
 	"testing"
 )
 
@@ -59,5 +60,26 @@ func BenchmarkNewCollector_withOpts(b *testing.B) {
 		if c == nil {
 			b.Fatal("must be pointer")
 		}
+	}
+}
+
+func TestCollector_RegisterDB(t *testing.T) {
+	c := NewCollector()
+	err := c.RegisterDB(&sql.DB{})
+	if err != nil {
+		t.Error("must be error", err)
+	}
+}
+
+func TestCollector_EnableStat(t *testing.T) {
+	c := NewCollector()
+	err := c.RegisterDB(&sql.DB{})
+	if err != nil {
+		t.Error("must complete without error", err)
+	}
+
+	err = c.EnableStat()
+	if err != nil {
+		t.Error("must complete without error", err)
 	}
 }
