@@ -34,17 +34,17 @@ type CollectorOpts struct {
 //		Subsystem: "database",
 //	})
 //	prometheus.MustRegister(c)
-func NewCollector(options ...Opts) *Collector {
+func NewCollector(options ...CollectorOpts) *Collector {
 	opts := CollectorOpts{
 		Namespace: namespace,
 		Subsystem: subsystem,
 	}
 
-	if len(options) > 1 {
+	if len(options) > 0 {
 		opts = options[0]
 	}
 
 	return &Collector{
-		opts,
+		CollectorOpts: opts,
 	}
 }
