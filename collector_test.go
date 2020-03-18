@@ -44,7 +44,7 @@ func TestNewCollector_withOpts(t *testing.T) {
 
 func BenchmarkNewCollector_defaultOpts(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		if с := NewController(); c == nil {
+		if c := NewCollector(); c == nil {
 			b.Fatal("must be pointer")
 		}
 	}
@@ -52,7 +52,11 @@ func BenchmarkNewCollector_defaultOpts(b *testing.B) {
 
 func BenchmarkNewCollector_withOpts(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		if c := NewCollector(); c == nil {
+		c := NewCollector(CollectorOpts{
+			Namespace: "ns",
+			Subsystem: "subsystem",
+		})
+		if c == nil {
 			b.Fatal("must be pointer")
 		}
 	}
