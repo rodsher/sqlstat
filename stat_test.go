@@ -110,3 +110,61 @@ func TestStat_RegisterDB_withoutPanic(t *testing.T) {
 		t.Error("unexpected error", err)
 	}
 }
+
+func TestStat_Enable(t *testing.T) {
+	var (
+		stat = New()
+		db   = sql.DB{}
+	)
+
+	err := stat.RegisterDB(&db)
+	if err != nil {
+		t.Error("unexpected error", err)
+	}
+
+	err = stat.Enable()
+	if err != nil {
+		t.Error("unexpecter error", err)
+	}
+}
+
+func TestStat_Enable_withoutPanic(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			t.Error("unexpected panic", err)
+		}
+	}()
+
+	var (
+		stat = New()
+		db   = sql.DB{}
+	)
+
+	err := stat.RegisterDB(&db)
+	if err != nil {
+		t.Error("unexpected error", err)
+	}
+
+	err = stat.Enable()
+	if err != nil {
+		t.Error("unexpecter error", err)
+	}
+}
+
+func BenchmarkStat_Enable(b *testing.B) {
+	var (
+		stat = New()
+		db   = sql.DB{}
+	)
+
+	err := stat.RegisterDB(&db)
+	if err != nil {
+		t.Error("unexpected error", err)
+	}
+
+	for i := 0; i < b.N; i++ {
+		if err := stat.Enable(); err != nil {
+			t.Error("unexpected error", err)
+		}
+	}
+}
