@@ -7,39 +7,39 @@ import (
 
 func TestNew_defaultOpts(t *testing.T) {
 	stat := New()
-	if stat.Namespace != "sql" {
-		t.Errorf("expect: %s, get: %s", "sql", stat.Namespace)
+	if stat.GetOpts().Namespace != "sql" {
+		t.Errorf("expect: %s, get: %s", "sql", stat.GetOpts().Namespace)
 	}
 
-	if stat.Subsystem != "stat" {
-		t.Errorf("expect: %s, get: %s", "stat", stat.Subsystem)
+	if stat.GetOpts().Subsystem != "stat" {
+		t.Errorf("expect: %s, get: %s", "stat", stat.GetOpts().Subsystem)
 	}
 
-	if stat.IsEnabled != true {
-		t.Errorf("expect: %t, get: %t", true, stat.IsAllEnabled)
+	if stat.GetOpts().IsStatEnable != true {
+		t.Errorf("expect: %t, get: %t", true, stat.GetOpts().IsStatEnable)
 	}
 }
 
 func TestNew_withOpts(t *testing.T) {
-	stat := New(StatOpts{
-		Namespace: "ns",
-		Subsystem: "sb",
-		IsEnabled: false,
+	stat := New(Opts{
+		Namespace:    "ns",
+		Subsystem:    "sb",
+		IsStatEnable: false,
 	})
-	if stat.Namespace != "ns" {
-		t.Errorf("expect: %s, get: %s", "ns", stat.Namespace)
+	if stat.GetOpts().Namespace != "ns" {
+		t.Errorf("expect: %s, get: %s", "ns", stat.GetOpts().Namespace)
 	}
 
-	if stat.Subsystem != "sb" {
-		t.Errorf("expect: %s, get: %s", "sb", stat.Subsystem)
+	if stat.GetOpts().Subsystem != "sb" {
+		t.Errorf("expect: %s, get: %s", "sb", stat.GetOpts().Subsystem)
 	}
 
-	if stat.IsEnabled != false {
-		t.Errorf("expect: %t, get: %t", false, stat.IsEnabled)
+	if stat.GetOpts().IsStatEnable != false {
+		t.Errorf("expect: %t, get: %t", false, stat.GetOpts().IsStatEnable)
 	}
 }
 
-func TestNew_withoutPanic() {
+func TestNew_withoutPanic(t *testing.T) {
 	defer func() {
 		if err := recover(); err != nil {
 			t.Error("unexpected panic")
@@ -60,12 +60,12 @@ func BenchmarkNew(b *testing.B) {
 	}
 }
 
-func BenchmarkStatOpts(b *testing.B) {
+func BenchmarkOpts(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		opts := &StatOpts{
-			Namespace: "ns",
-			Subsystem: "sb",
-			IsEnabled: false,
+		opts := &Opts{
+			Namespace:    "ns",
+			Subsystem:    "sb",
+			IsStatEnable: false,
 		}
 		if opts == nil {
 			b.Error("must be initialized")
@@ -111,60 +111,15 @@ func TestStat_RegisterDB_withoutPanic(t *testing.T) {
 	}
 }
 
-func TestStat_Enable(t *testing.T) {
+func BenchmarkStat_RegisterDB(b *testing.B) {
 	var (
 		stat = New()
 		db   = sql.DB{}
 	)
-
-	err := stat.RegisterDB(&db)
-	if err != nil {
-		t.Error("unexpected error", err)
-	}
-
-	err = stat.Enable()
-	if err != nil {
-		t.Error("unexpecter error", err)
-	}
-}
-
-func TestStat_Enable_withoutPanic(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			t.Error("unexpected panic", err)
-		}
-	}()
-
-	var (
-		stat = New()
-		db   = sql.DB{}
-	)
-
-	err := stat.RegisterDB(&db)
-	if err != nil {
-		t.Error("unexpected error", err)
-	}
-
-	err = stat.Enable()
-	if err != nil {
-		t.Error("unexpecter error", err)
-	}
-}
-
-func BenchmarkStat_Enable(b *testing.B) {
-	var (
-		stat = New()
-		db   = sql.DB{}
-	)
-
-	err := stat.RegisterDB(&db)
-	if err != nil {
-		t.Error("unexpected error", err)
-	}
 
 	for i := 0; i < b.N; i++ {
-		if err := stat.Enable(); err != nil {
-			t.Error("unexpected error", err)
+		if err := stat.RegisterDB(&db); err != nil {
+			b.Error("unexpected error", err)
 		}
 	}
 }
