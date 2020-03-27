@@ -24,7 +24,7 @@ const (
 // 		}
 //
 // 		stat := sqlstat.New()
-// 		err = stat.RegisterDB(db)
+// 		err = stat.RegisterDB(&db)
 // 		if err != nil {
 // 			log.Fatal(err)
 // 		}
@@ -58,7 +58,7 @@ func New(options ...Opts) Stat {
 // Opts describes settings for collectors.
 //
 // Example:
-// opt := &Opts{
+// opts := &Opts{
 //		Namespace: "custom_namespace",
 //		Subsystem: "custom_subsystem",
 //		IsStatEnable: true,
@@ -70,6 +70,17 @@ type Opts struct {
 }
 
 type register interface {
+	// RegisterDB registers a database connection and enables
+	// all collectors for metrics.
+	// You must register only one database per sqlstat instance.
+	// Method returns error when passed argument is nil.
+	//
+	// Example:
+	//		stat := sqlstat.New()
+	// 		err = stat.RegisterDB(&db)
+	// 		if err != nil {
+	// 			log.Fatal(err)
+	// 		}
 	RegisterDB(*sql.DB) error
 }
 
@@ -79,7 +90,7 @@ type collectorsKeeper interface {
 	//
 	// Example:
 	// 		stat := sqlstat.New()
-	// 		err = stat.RegisterDB(db)
+	// 		err = stat.RegisterDB(&db)
 	// 		if err != nil {
 	// 			log.Fatal(err)
 	// 		}
