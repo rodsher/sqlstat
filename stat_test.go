@@ -148,3 +148,91 @@ func TestStat_GetCollectors_empty(t *testing.T) {
 		t.Errorf("expect: %d, get: %d", 0, len(collectors))
 	}
 }
+
+func TestStat_EnableOpenConnections(t *testing.T) {
+	s := &stat{
+		DB: &sql.DB{},
+	}
+
+	s.enableOpenConnections()
+	if len(s.collectors) != 1 {
+		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
+	}
+}
+
+func TestStat_EnableConnectionsInUse(t *testing.T) {
+	s := &stat{
+		DB: &sql.DB{},
+	}
+
+	s.enableConnectionsInUse()
+	if len(s.collectors) != 1 {
+		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
+	}
+}
+
+func TestStat_EnableConnectionsIdle(t *testing.T) {
+	s := &stat{
+		DB: &sql.DB{},
+	}
+
+	s.enableConnectionsIdle()
+	if len(s.collectors) != 1 {
+		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
+	}
+}
+
+func TestStat_EnableConnectionsWait(t *testing.T) {
+	s := &stat{
+		DB: &sql.DB{},
+	}
+
+	s.enableConnectionsWait()
+	if len(s.collectors) != 1 {
+		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
+	}
+}
+
+func TestStat_EnableConnectionsWaitDuration(t *testing.T) {
+	s := &stat{
+		DB: &sql.DB{},
+	}
+
+	s.enableConnectionsWaitDuration()
+	if len(s.collectors) != 1 {
+		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
+	}
+}
+
+func TestStat_EnableConnectionsMaxIdleClosed(t *testing.T) {
+	s := &stat{
+		DB: &sql.DB{},
+	}
+
+	s.enableConnectionsWaitDuration()
+	if len(s.collectors) != 1 {
+		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
+	}
+}
+
+func TestStat_EnableConnectionsMaxLifetimeClosed(t *testing.T) {
+	s := &stat{
+		DB: &sql.DB{},
+	}
+
+	s.enableConnectionsMaxLifetimeClosed()
+	if len(s.collectors) != 1 {
+		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
+	}
+}
+
+func TestStat_EnableMaxOpenConnections(t *testing.T) {
+	s := &stat{
+		DB: &sql.DB{},
+	}
+
+	s.enableMaxOpenConnections()
+	if len(s.collectors) != 1 {
+		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
+	}
+}
