@@ -74,6 +74,18 @@ type register interface {
 }
 
 type collectorsKeeper interface {
+	// GetCollectors aims to access registered Prometheus collectors
+	// and register them in Prometheus.
+	//
+	// Example:
+	// 		stat := sqlstat.New()
+	// 		err = stat.RegisterDB(db)
+	// 		if err != nil {
+	// 			log.Fatal(err)
+	// 		}
+	//
+	//		collectors := stat.GetCollectors()
+	// 		prometheus.MustRegister(collectors...)
 	GetCollectors() []prometheus.Collector
 }
 
@@ -95,6 +107,7 @@ type stat struct {
 }
 
 func (s *stat) RegisterDB(db *sql.DB) error {
+	s.enableOpenConnections()
 	return nil
 }
 
@@ -104,4 +117,74 @@ func (s *stat) GetCollectors() []prometheus.Collector {
 
 func (s *stat) GetOpts() *Opts {
 	return &s.Opts
+}
+
+func (s *stat) enableOpenConnections() {
+	c := prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: s.Namespace,
+		Subsystem: s.Subsystem,
+		Name:      "open_connections_total",
+		Help:      "The number of established connections both in use and idle",
+	})
+	s.collectors = append(s.collectors, c)
+}
+
+func (s *stat) enableConnectionsInUse() {
+	c := prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: s.Namespace,
+		Subsystem: s.Subsystem,
+		Name:      "connections_in_use_total",
+		Help:      "The number of connections currently in use",
+	})
+	s.collectors = append(s.collectors, c)
+}
+
+func (s *stat) enableConnectionsIdle() {
+	c := prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: s.Namespace,
+		Subsystem: s.Subsystem,
+		Name:      "connections_idle_total",
+		Help:      "The number of idle connections",
+	})
+	s.collectors = append(s.collectors, c)
+}
+
+func (s *stat) enableConnectionsWait() {
+	c := prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: s.Namespace,
+		Subsystem: s.Subsystem,
+		Name:      "connections_wait_total",
+		Help:      "The total number of connections waited for",
+	})
+	s.collectors = append(s.collectors, c)
+}
+
+func (s *stat) enableConnectionsWaitDuration() {
+	c := prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: s.Namespace,
+		Subsystem: s.Subsystem,
+		Name:      "connections_wait_duration_total",
+		Help:      "The total time blocked waiting for a new connection",
+	})
+	s.collectors = append(s.collectors, c)
+}
+
+func (s *stat) enableConnectionsMaxLifetimeClosed() {
+	c := prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: s.Namespace,
+		Subsystem: s.Subsystem,
+		Name:      "connections_max_lifetime_closed_total",
+		Help:      "The total number of connections closed due to SetConnMaxLifetime",
+	})
+	s.collectors = append(s.collectors, c)
+}
+
+func (s *stat) enableMaxOpenConnections() {
+	c := prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: s.Namespace,
+		Subsystem: s.Subsystem,
+		Name:      "max_open_connections",
+		Help:      "Maximum number of open connections to the database",
+	})
+	s.collectors = append(s.collectors, c)
 }
