@@ -87,6 +87,22 @@ func TestStat_RegisterDB(t *testing.T) {
 	}
 }
 
+func TestStat_RegisterDB_allCollectorsEnabled(t *testing.T) {
+	var (
+		stat = New()
+		db   = sql.DB{}
+	)
+
+	err := stat.RegisterDB(&db)
+	if err != nil {
+		t.Error("unexpected error", err)
+	}
+
+	if len(stat.GetCollectors()) != 8 {
+		t.Errorf("expect: %d, get: %d", 8, len(stat.GetCollectors()))
+	}
+}
+
 func TestStat_RegisterDB_nilArgument(t *testing.T) {
 	stat := New()
 	err := stat.RegisterDB(nil)
