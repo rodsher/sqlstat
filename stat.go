@@ -108,6 +108,13 @@ type stat struct {
 
 func (s *stat) RegisterDB(db *sql.DB) error {
 	s.enableOpenConnections()
+	s.enableConnectionsInUse()
+	s.enableConnectionsIdle()
+	s.enableConnectionsWait()
+	s.enableConnectionsWaitDuration()
+	s.enableConnectionsMaxIdleClosed()
+	s.enableConnectionsMaxLifetimeClosed()
+	s.enableMaxOpenConnections()
 	return nil
 }
 
@@ -165,6 +172,16 @@ func (s *stat) enableConnectionsWaitDuration() {
 		Subsystem: s.Subsystem,
 		Name:      "connections_wait_duration_total",
 		Help:      "The total time blocked waiting for a new connection",
+	})
+	s.collectors = append(s.collectors, c)
+}
+
+func (s *stat) enableConnectionsMaxIdleClosed() {
+	c := prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: s.Namespace,
+		Subsystem: s.Subsystem,
+		Name:      "connections_max_idle_closed_total",
+		Help:      "The total number of connections closed due to SetMaxIdleConns",
 	})
 	s.collectors = append(s.collectors, c)
 }
