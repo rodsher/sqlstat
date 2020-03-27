@@ -3,6 +3,8 @@ package sqlstat
 import (
 	"database/sql"
 	"testing"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func TestNew_defaultOpts(t *testing.T) {
@@ -121,5 +123,28 @@ func BenchmarkStat_RegisterDB(b *testing.B) {
 		if err := stat.RegisterDB(&db); err != nil {
 			b.Error("unexpected error", err)
 		}
+	}
+}
+
+func TestStat_GetCollectors(t *testing.T) {
+	s := &stat{
+		collectors: []prometheus.Collector{
+			prometheus.NewGauge(prometheus.GaugeOpts{
+				Name: "max_open_connections",
+			}),
+		},
+	}
+
+	collectors := s.GetCollectors()
+	if len(collectors) != 1 {
+		t.Errorf("expect: %d, get: %d", 1, len(collectors))
+	}
+}
+
+func TestStat_GetCollectors_empty(t *testing.T) {
+	s := New()
+	collectors := s.GetCollectors()
+	if len(collectors) != 0 {
+		t.Errorf("expect: %d, get: %d", 0, len(collectors))
 	}
 }
