@@ -2,6 +2,7 @@ package sqlstat
 
 import (
 	"database/sql"
+	"runtime"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -129,6 +130,23 @@ func TestStat_RegisterDB_withoutPanic(t *testing.T) {
 	}
 }
 
+func TestStat_RegisterDB_NumGoroutineIncrease(t *testing.T) {
+	var (
+		stat = New()
+		db   = sql.DB{}
+		n    = runtime.NumGoroutine()
+	)
+
+	err := stat.RegisterDB(&db)
+	if err != nil {
+		t.Error("unexpected error", err)
+	}
+
+	if runtime.NumGoroutine() != n+1 {
+		t.Error("num goroutine must be increased")
+	}
+}
+
 func BenchmarkStat_RegisterDB(b *testing.B) {
 	var (
 		stat = New()
@@ -158,10 +176,34 @@ func TestStat_GetCollectors(t *testing.T) {
 }
 
 func TestStat_GetCollectors_empty(t *testing.T) {
-	s := New()
-	collectors := s.GetCollectors()
+	var (
+		s          = New()
+		collectors = s.GetCollectors()
+	)
+
 	if len(collectors) != 0 {
 		t.Errorf("expect: %d, get: %d", 0, len(collectors))
+	}
+}
+
+func TestStat_EnableCollectors(t *testing.T) {
+	s := &stat{
+		DB: &sql.DB{},
+	}
+
+	s.enableCollectors()
+	if len(s.GetCollectors()) != 8 {
+		t.Errorf("expect: %d, get: %d", 8, len(s.GetCollectors()))
+	}
+}
+
+func BenchmarkStat_EnableCollectors(b *testing.B) {
+	s := &stat{
+		DB: &sql.DB{},
+	}
+
+	for i := 0; i < b.N; i++ {
+		s.enableCollectors()
 	}
 }
 
