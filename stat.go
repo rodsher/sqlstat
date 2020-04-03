@@ -2,6 +2,8 @@ package sqlstat
 
 import (
 	"database/sql"
+	"errors"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -13,6 +15,9 @@ const (
 	// Subsystem stores a default value for Prometheus collector subsystem.
 	Subsystem = "stat"
 )
+
+// ErrDatabaseIsNil returns when a database argument is nil.
+var ErrDatabaseIsNil = errors.New("argument DB must be initialized")
 
 // Stat is a main concept. Stat provides top-level functionality to register a database
 // connection and register metrics in Prometheus.
@@ -43,9 +48,9 @@ type Stat interface {
 // 		stat := New()
 func New(options ...Opts) Stat {
 	opts := Opts{
-		Namespace:    Namespace,
-		Subsystem:    Subsystem,
-		IsStatEnable: true,
+		Namespace: Namespace,
+		Subsystem: Subsystem,
+		Interval:  5 * time.Second,
 	}
 
 	if len(options) > 0 {
@@ -54,7 +59,6 @@ func New(options ...Opts) Stat {
 
 	return &stat{
 		Opts:       opts,
-		metrics:    make(map[string]prometheus.Metric),
 		collectors: make([]prometheus.Collector, 8),
 	}
 }
@@ -65,12 +69,12 @@ func New(options ...Opts) Stat {
 // 		opts := &Opts{
 //			Namespace: "custom_namespace",
 //			Subsystem: "custom_subsystem",
-//			IsStatEnable: true,
+//			Interval:  5*time.Second,
 // 		}
 type Opts struct {
-	Namespace    string
-	Subsystem    string
-	IsStatEnable bool
+	Namespace string
+	Subsystem string
+	Interval  time.Duration
 }
 
 type register interface {
@@ -111,18 +115,28 @@ type optsKeeper interface {
 	// 		opts := stat.New().GetOpts()
 	//		fmt.Println(opts.Namespace) // Output: "sql"
 	//		fmt.Println(opts.Subsystem) // Output: "stat"
-	//		fmt.Println(opts.IsStatEnabled) // Output: true
 	GetOpts() *Opts
 }
 
 type stat struct {
 	Opts
 	DB         *sql.DB
-	metrics    map[string]prometheus.Metric
 	collectors []prometheus.Collector
 }
 
 func (s *stat) RegisterDB(db *sql.DB) error {
+	if db == nil {
+		return ErrDatabaseIsNil
+	}
+
+	c := newCollector().
+		withDB(db).
+		withOpts(s.Opts)
+
+	c.registerMetrics()
+	c.collectMetricsAsync()
+	s.collectors = c.getCollectors()
+
 	return nil
 }
 
