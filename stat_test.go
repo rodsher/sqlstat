@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"runtime"
 	"testing"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -18,16 +19,16 @@ func TestNew_defaultOpts(t *testing.T) {
 		t.Errorf("expect: %s, get: %s", "stat", stat.GetOpts().Subsystem)
 	}
 
-	if stat.GetOpts().IsStatEnable != true {
-		t.Errorf("expect: %t, get: %t", true, stat.GetOpts().IsStatEnable)
+	if stat.GetOpts().Interval.Seconds() != 5.0 {
+		t.Errorf("expect: %f, get: %f", 5.0, stat.GetOpts().Interval.Seconds())
 	}
 }
 
 func TestNew_withOpts(t *testing.T) {
 	stat := New(Opts{
-		Namespace:    "ns",
-		Subsystem:    "sb",
-		IsStatEnable: false,
+		Namespace: "ns",
+		Subsystem: "sb",
+		Interval:  5 * time.Second,
 	})
 	if stat.GetOpts().Namespace != "ns" {
 		t.Errorf("expect: %s, get: %s", "ns", stat.GetOpts().Namespace)
@@ -37,8 +38,8 @@ func TestNew_withOpts(t *testing.T) {
 		t.Errorf("expect: %s, get: %s", "sb", stat.GetOpts().Subsystem)
 	}
 
-	if stat.GetOpts().IsStatEnable != false {
-		t.Errorf("expect: %t, get: %t", false, stat.GetOpts().IsStatEnable)
+	if stat.GetOpts().Interval.Seconds() != 5.0 {
+		t.Errorf("expect: %f, get: %f", 5.0, stat.GetOpts().Interval.Seconds())
 	}
 }
 
@@ -49,10 +50,7 @@ func TestNew_withoutPanic(t *testing.T) {
 		}
 	}()
 
-	stat := New()
-	if stat == nil {
-		t.Error("must be initialized")
-	}
+	New()
 }
 
 func BenchmarkNew(b *testing.B) {
@@ -66,9 +64,9 @@ func BenchmarkNew(b *testing.B) {
 func BenchmarkOpts(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		opts := &Opts{
-			Namespace:    "ns",
-			Subsystem:    "sb",
-			IsStatEnable: false,
+			Namespace: "ns",
+			Subsystem: "sb",
+			Interval:  5 * time.Second,
 		}
 		if opts == nil {
 			b.Error("must be initialized")
@@ -130,7 +128,7 @@ func TestStat_RegisterDB_withoutPanic(t *testing.T) {
 	}
 }
 
-func TestStat_RegisterDB_NumGoroutineIncrease(t *testing.T) {
+func TestStat_RegisterDB_NumGoroutineIncreased(t *testing.T) {
 	var (
 		stat = New()
 		db   = sql.DB{}
@@ -142,7 +140,7 @@ func TestStat_RegisterDB_NumGoroutineIncrease(t *testing.T) {
 		t.Error("unexpected error", err)
 	}
 
-	if runtime.NumGoroutine() != n+1 {
+	if runtime.NumGoroutine() < n {
 		t.Error("num goroutine must be increased")
 	}
 }
@@ -172,125 +170,5 @@ func TestStat_GetCollectors(t *testing.T) {
 	collectors := s.GetCollectors()
 	if len(collectors) != 1 {
 		t.Errorf("expect: %d, get: %d", 1, len(collectors))
-	}
-}
-
-func TestStat_GetCollectors_empty(t *testing.T) {
-	var (
-		s          = New()
-		collectors = s.GetCollectors()
-	)
-
-	if len(collectors) != 0 {
-		t.Errorf("expect: %d, get: %d", 0, len(collectors))
-	}
-}
-
-func TestStat_EnableCollectors(t *testing.T) {
-	s := &stat{
-		DB: &sql.DB{},
-	}
-
-	s.enableCollectors()
-	if len(s.GetCollectors()) != 8 {
-		t.Errorf("expect: %d, get: %d", 8, len(s.GetCollectors()))
-	}
-}
-
-func BenchmarkStat_EnableCollectors(b *testing.B) {
-	s := &stat{
-		DB: &sql.DB{},
-	}
-
-	for i := 0; i < b.N; i++ {
-		s.enableCollectors()
-	}
-}
-
-func TestStat_EnableOpenConnections(t *testing.T) {
-	s := &stat{
-		DB: &sql.DB{},
-	}
-
-	s.enableOpenConnections()
-	if len(s.collectors) != 1 {
-		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
-	}
-}
-
-func TestStat_EnableConnectionsInUse(t *testing.T) {
-	s := &stat{
-		DB: &sql.DB{},
-	}
-
-	s.enableConnectionsInUse()
-	if len(s.collectors) != 1 {
-		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
-	}
-}
-
-func TestStat_EnableConnectionsIdle(t *testing.T) {
-	s := &stat{
-		DB: &sql.DB{},
-	}
-
-	s.enableConnectionsIdle()
-	if len(s.collectors) != 1 {
-		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
-	}
-}
-
-func TestStat_EnableConnectionsWait(t *testing.T) {
-	s := &stat{
-		DB: &sql.DB{},
-	}
-
-	s.enableConnectionsWait()
-	if len(s.collectors) != 1 {
-		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
-	}
-}
-
-func TestStat_EnableConnectionsWaitDuration(t *testing.T) {
-	s := &stat{
-		DB: &sql.DB{},
-	}
-
-	s.enableConnectionsWaitDuration()
-	if len(s.collectors) != 1 {
-		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
-	}
-}
-
-func TestStat_EnableConnectionsMaxIdleClosed(t *testing.T) {
-	s := &stat{
-		DB: &sql.DB{},
-	}
-
-	s.enableConnectionsWaitDuration()
-	if len(s.collectors) != 1 {
-		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
-	}
-}
-
-func TestStat_EnableConnectionsMaxLifetimeClosed(t *testing.T) {
-	s := &stat{
-		DB: &sql.DB{},
-	}
-
-	s.enableConnectionsMaxLifetimeClosed()
-	if len(s.collectors) != 1 {
-		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
-	}
-}
-
-func TestStat_EnableMaxOpenConnections(t *testing.T) {
-	s := &stat{
-		DB: &sql.DB{},
-	}
-
-	s.enableMaxOpenConnections()
-	if len(s.collectors) != 1 {
-		t.Errorf("expect: %d, get: %d", 1, len(s.collectors))
 	}
 }
