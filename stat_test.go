@@ -146,15 +146,16 @@ func TestStat_RegisterDB_NumGoroutineIncreased(t *testing.T) {
 }
 
 func BenchmarkStat_RegisterDB(b *testing.B) {
-	var (
-		stat = New()
-		db   = sql.DB{}
-	)
-
 	for i := 0; i < b.N; i++ {
-		if err := stat.RegisterDB(&db); err != nil {
-			b.Error("unexpected error", err)
-		}
+		b.StopTimer()
+
+		var (
+			stat = New()
+			db   = sql.DB{}
+		)
+
+		b.StartTimer()
+		stat.RegisterDB(&db)
 	}
 }
 
