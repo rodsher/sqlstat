@@ -67,10 +67,11 @@ func (c *collector) collectMetricsAsync() {
 			wg      = sync.WaitGroup{}
 		)
 
-		wg.Add(1)
+		wg.Add(2)
+
 		go c.collectMetricsPeriodically(metrics)
-		wg.Add(1)
 		go c.updateMetrics(metrics)
+
 		wg.Wait()
 	}()
 }
