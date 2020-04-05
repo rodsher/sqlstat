@@ -230,16 +230,3 @@ func TestCollector_RegisterMaxOpenConnections(t *testing.T) {
 		t.Errorf("expect: %d, get: %d", 1, len(c.metrics))
 	}
 }
-
-func TestCollector_GetCollectors(t *testing.T) {
-	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
-		Namespace: "sql",
-		Subsystem: "stat",
-		Interval:  5 * time.Second,
-	})
-
-	collectors := c.getCollectors()
-	if len(collectors) != 8 {
-		t.Errorf("expect: %d, get: %d", 8, len(collectors))
-	}
-}
