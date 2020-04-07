@@ -64,9 +64,10 @@ func (c *collector) collectMetricsAsync() {
 		var (
 			metrics = make(chan metric)
 			wg      = sync.WaitGroup{}
+			delta   = 2
 		)
 
-		wg.Add(2)
+		wg.Add(delta)
 
 		go c.collectMetricsPeriodically(metrics)
 		go c.updateMetrics(metrics)
