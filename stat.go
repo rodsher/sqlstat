@@ -14,6 +14,9 @@ const (
 
 	// Subsystem stores a default value for Prometheus collector subsystem.
 	Subsystem = "stat"
+
+	// DefaultInterval stores a value in seconds for a default collect metrics interval.
+	DefaultInterval = 5
 )
 
 // ErrDatabaseIsNil returns when a database argument is nil.
@@ -50,7 +53,7 @@ func New(options ...Opts) Stat {
 	opts := Opts{
 		Namespace: Namespace,
 		Subsystem: Subsystem,
-		Interval:  5 * time.Second,
+		Interval:  DefaultInterval * time.Second,
 	}
 
 	if len(options) > 0 {
@@ -59,7 +62,7 @@ func New(options ...Opts) Stat {
 
 	return &stat{
 		Opts:       opts,
-		collectors: make([]prometheus.Collector, 8),
+		collectors: make([]prometheus.Collector, count),
 	}
 }
 

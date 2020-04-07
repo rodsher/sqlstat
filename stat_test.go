@@ -104,6 +104,7 @@ func TestStat_RegisterDB_allCollectorsEnabled(t *testing.T) {
 
 func TestStat_RegisterDB_nilArgument(t *testing.T) {
 	stat := New()
+
 	err := stat.RegisterDB(nil)
 	if err == nil {
 		t.Error("must raise error when argument is nil")
@@ -155,6 +156,7 @@ func BenchmarkStat_RegisterDB(b *testing.B) {
 		)
 
 		b.StartTimer()
+		//nolint:errcheck
 		stat.RegisterDB(&db)
 	}
 }

@@ -132,8 +132,8 @@ func TestCollector_RegisterMetrics(t *testing.T) {
 
 	c.registerMetrics()
 
-	if len(c.metrics) != 8 {
-		t.Errorf("expect: %d, get: %d", 8, len(c.metrics))
+	if len(c.metrics) != count {
+		t.Errorf("expect: %d, get: %d", count, len(c.metrics))
 	}
 }
 
@@ -141,15 +141,13 @@ func BenchmarkCollector_RegisterMetrics(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
 
-		var (
-			db   = &sql.DB{}
-			opts = Opts{
-				Namespace: "sql",
-				Subsystem: "stat",
-				Interval:  5 * time.Second,
-			}
-			c = newCollector().withDB(db).withOpts(opts)
-		)
+		db := sql.DB{}
+		opts := Opts{
+			Namespace: "sql",
+			Subsystem: "stat",
+			Interval:  5 * time.Second,
+		}
+		c := newCollector().withDB(&db).withOpts(opts)
 
 		b.StartTimer()
 		c.registerMetrics()

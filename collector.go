@@ -8,6 +8,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// count describes how many Prometheus collectors exist
+const count = 8
+
 type (
 	metric struct {
 		Name  string
@@ -33,18 +36,14 @@ func newCollector() *collector {
 	}
 }
 
-func (c *collector) withDB(DB *sql.DB) *collector {
-	c.DB = DB
+func (c *collector) withDB(db *sql.DB) *collector {
+	c.DB = db
 
 	return c
 }
 
 func (c *collector) withOpts(opts Opts) *collector {
-	c.collectorOpts = collectorOpts{
-		Namespace: opts.Namespace,
-		Subsystem: opts.Subsystem,
-		Interval:  opts.Interval,
-	}
+	c.collectorOpts = collectorOpts(opts)
 
 	return c
 }
@@ -87,19 +86,16 @@ func (c *collector) collectMetrics(metrics chan<- metric) {
 	metrics <- metric{"open_connections_total", int64(c.DB.Stats().OpenConnections)}
 	metrics <- metric{"connections_in_use_total", int64(c.DB.Stats().InUse)}
 	metrics <- metric{"connections_idle_total", int64(c.DB.Stats().Idle)}
-	metrics <- metric{"connections_wait_total", int64(c.DB.Stats().WaitCount)}
+	metrics <- metric{"connections_wait_total", c.DB.Stats().WaitCount}
 	metrics <- metric{"connections_wait_duration_total", int64(c.DB.Stats().WaitDuration)}
-	metrics <- metric{"connections_max_idle_closed_total", int64(c.DB.Stats().MaxIdleClosed)}
-	metrics <- metric{"connections_max_lifetime_closed_total", int64(c.DB.Stats().MaxLifetimeClosed)}
+	metrics <- metric{"connections_max_idle_closed_total", c.DB.Stats().MaxIdleClosed}
+	metrics <- metric{"connections_max_lifetime_closed_total", c.DB.Stats().MaxLifetimeClosed}
 	metrics <- metric{"max_open_connections", int64(c.DB.Stats().MaxOpenConnections)}
 }
 
 func (c *collector) updateMetrics(metrics <-chan metric) {
-	for {
-		select {
-		case m := <-metrics:
-			c.metrics[m.Name].Set(float64(m.Value))
-		}
+	for m := range metrics {
+		c.metrics[m.Name].Set(float64(m.Value))
 	}
 }
 
@@ -184,7 +180,7 @@ func (c *collector) registerMaxOpenConnections() {
 }
 
 func (c *collector) getCollectors() []prometheus.Collector {
-	var collectors []prometheus.Collector
+	var collectors = make([]prometheus.Collector, count)
 
 	for _, metric := range c.metrics {
 		collectors = append(collectors, metric)
