@@ -1,8 +1,37 @@
-# go-sql-prom
-Client to collect connection metrics using database/sql
+# SQL Stat
+Package to collect client's connection metrics for database/sql.
 
 [![Build Status](https://travis-ci.org/rodsher/sqlstat.svg?branch=master)](https://travis-ci.org/rodsher/sqlstat)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rodsher/sqlstat)](https://goreportcard.com/report/github.com/rodsher/sqlstat)
+
+## Prerequisites
+
+sqlstat requires a Go version with Modules support and uses versioned import. So please make sure to initialize a Go module before installing.
+
+## Installation
+
+```bash
+go get github.com/rodsher/sqlstat
+```
+
+Import:
+
+```go
+import "github.com/rodsher/sqlstat"
+```
+
+## Quick start
+
+```go
+func main() {
+	db, _ := sql.Open("postgres", "postgres://user:password@localhost/db")
+
+	stat := sqlstat.New()
+	stat.RegisterDB(db)
+
+	prometheus.MustRegister(stat.GetCollectors()...)
+}
+```
 
 ## Exposed metrics
 * sql_stats_open_connections_total - The number of established connections both in use and idle
