@@ -45,4 +45,14 @@ func main() {
 * sql_stats_connections_max_lifetime_closed_total - The total number of connections closed due to SetConnMaxLifetime
 * sql_stats_max_open_connections - Maximum number of open connections to the database
 
+## Built With
 
+[Prometheus](https://prometheus.io)
+
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
