@@ -13,4 +13,4 @@ jobs:
     - stage: test
       script: go test -v -cpu=1,2 ./...
     - stage: coverage
-      script: ./coverage.sh
+      script: ./scripts/coverage.sh
