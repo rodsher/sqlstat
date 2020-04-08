@@ -1,7 +1,8 @@
-# SQL Stat
+# SQL stat
 Package to collect client's connection metrics for database/sql.
 
 [![Build Status](https://travis-ci.org/rodsher/sqlstat.svg?branch=master)](https://travis-ci.org/rodsher/sqlstat)
+[![Coverage Status](https://coveralls.io/repos/github/rodsher/sqlstat/badge.svg?branch=master)](https://coveralls.io/github/rodsher/sqlstat?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rodsher/sqlstat)](https://goreportcard.com/report/github.com/rodsher/sqlstat)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/git-chglog/git-chglog/blob/master/LICENSE)
 
