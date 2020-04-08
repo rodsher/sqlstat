@@ -8,8 +8,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// count describes how many Prometheus collectors exist
-const count = 8
+// collectorCount describes how many Prometheus collectors exist
+const collectorCount = 8
 
 type (
 	metric struct {
@@ -181,7 +181,7 @@ func (c *collector) registerMaxOpenConnections() {
 }
 
 func (c *collector) getCollectors() []prometheus.Collector {
-	var collectors = make([]prometheus.Collector, count)
+	var collectors = make([]prometheus.Collector, 0, collectorCount)
 
 	for _, metric := range c.metrics {
 		collectors = append(collectors, metric)

@@ -62,7 +62,7 @@ func New(options ...Opts) Stat {
 
 	return &stat{
 		Opts:       opts,
-		collectors: make([]prometheus.Collector, count),
+		collectors: make([]prometheus.Collector, 0, collectorCount),
 	}
 }
 

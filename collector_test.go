@@ -7,8 +7,6 @@ import (
 )
 
 func TestNewCollector(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector()
 	if c == nil {
 		t.Error("must be initialized")
@@ -16,8 +14,6 @@ func TestNewCollector(t *testing.T) {
 }
 
 func TestNewCollector_withoutPanic(t *testing.T) {
-	t.Parallel()
-
 	defer func() {
 		if err := recover(); err != nil {
 			t.Error("unexpected panic", err)
@@ -44,8 +40,6 @@ func BenchmarkNewCollector_WithOptsAndDB(b *testing.B) {
 }
 
 func TestNewCollector_WithDB(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector().withDB(&sql.DB{})
 	if c.DB == nil {
 		t.Error("must be initialized")
@@ -53,8 +47,6 @@ func TestNewCollector_WithDB(t *testing.T) {
 }
 
 func TestNewCollector_WithDB_withoutPanic(t *testing.T) {
-	t.Parallel()
-
 	defer func() {
 		if err := recover(); err != nil {
 			t.Error("unexpected panic", err)
@@ -71,8 +63,6 @@ func BenchmarkNewCollector_WithDB(b *testing.B) {
 }
 
 func TestNewCollector_WithOpts(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector().withOpts(Opts{
 		Namespace: "sql",
 		Subsystem: "stat",
@@ -92,8 +82,6 @@ func TestNewCollector_WithOpts(t *testing.T) {
 }
 
 func TestNewCollector_WithOpts_withoutPanic(t *testing.T) {
-	t.Parallel()
-
 	defer func() {
 		if err := recover(); err != nil {
 			t.Error("unexpected panic")
@@ -118,8 +106,6 @@ func BenchmarkNewCollector_WithOpts(b *testing.B) {
 }
 
 func TestCollector_RegisterMetrics(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
 		Namespace: "sql",
 		Subsystem: "stat",
@@ -132,8 +118,8 @@ func TestCollector_RegisterMetrics(t *testing.T) {
 
 	c.registerMetrics()
 
-	if len(c.metrics) != count {
-		t.Errorf("expect: %d, get: %d", count, len(c.metrics))
+	if len(c.metrics) != collectorCount {
+		t.Errorf("expect: %d, get: %d", collectorCount, len(c.metrics))
 	}
 }
 
@@ -155,8 +141,6 @@ func BenchmarkCollector_RegisterMetrics(b *testing.B) {
 }
 
 func TestCollector_RegisterOpenConnections(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
 		Namespace: "sql",
 		Subsystem: "stat",
@@ -171,8 +155,6 @@ func TestCollector_RegisterOpenConnections(t *testing.T) {
 }
 
 func TestCollector_RegisterConnectionsInUse(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
 		Namespace: "sql",
 		Subsystem: "stat",
@@ -187,8 +169,6 @@ func TestCollector_RegisterConnectionsInUse(t *testing.T) {
 }
 
 func TestCollector_RegisterConnectionsIdle(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
 		Namespace: "sql",
 		Subsystem: "stat",
@@ -203,8 +183,6 @@ func TestCollector_RegisterConnectionsIdle(t *testing.T) {
 }
 
 func TestCollector_RegisterConnectionsWait(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
 		Namespace: "sql",
 		Subsystem: "stat",
@@ -219,8 +197,6 @@ func TestCollector_RegisterConnectionsWait(t *testing.T) {
 }
 
 func TestCollector_RegisterConnectionsWaitDuration(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
 		Namespace: "sql",
 		Subsystem: "stat",
@@ -235,8 +211,6 @@ func TestCollector_RegisterConnectionsWaitDuration(t *testing.T) {
 }
 
 func TestCollector_RegisterConnectionsMaxIdleClosed(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
 		Namespace: "sql",
 		Subsystem: "stat",
@@ -251,8 +225,6 @@ func TestCollector_RegisterConnectionsMaxIdleClosed(t *testing.T) {
 }
 
 func TestCollector_RegisterConnectionsMaxLifetimeClosed(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
 		Namespace: "sql",
 		Subsystem: "stat",
@@ -267,8 +239,6 @@ func TestCollector_RegisterConnectionsMaxLifetimeClosed(t *testing.T) {
 }
 
 func TestCollector_RegisterMaxOpenConnections(t *testing.T) {
-	t.Parallel()
-
 	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
 		Namespace: "sql",
 		Subsystem: "stat",
