@@ -36,16 +36,54 @@ func main() {
 ```
 
 ## Exposed metrics
-* sql_stats_open_connections_total - The number of established connections both in use and idle
-* sql_stats_connections_in_use_total - The number of connections currently in use
-* sql_stats_connections_idle_total - The number of idle connections
-* sql_stats_connections_wait_total - The total number of connections waited for
-* sql_stats_connections_wait_duration_total - The total time blocked waiting for a new connection
-* sql_stats_connections_max_idle_closed_total - The total number of connections closed due to SetMaxIdleConns
-* sql_stats_connections_max_lifetime_closed_total - The total number of connections closed due to SetConnMaxLifetime
-* sql_stats_max_open_connections - Maximum number of open connections to the database
 
-## Built With
+| Metric                                          | Description                                                 |
+|-------------------------------------------------|-------------------------------------------------------------|
+|   sql_stat_open_connections_total               |   The number of established connections both in use and idle  |
+|   sql_stat_open_connections_total               |   The number of established connections both in use and idle|
+|   sql_stat_connections_in_use_total             |   The number of connections currently in use|
+|   sql_stat_connections_idle_total               |   The number of idle connections|
+|   sql_stat_connections_wait_total               |   The total number of connections waited for|
+|   sql_stat_connections_wait_duration_total      |   The total time blocked waiting for a new connection|
+|   sql_stat_connections_max_idle_closed_total    |   The total number of connections closed due to SetMaxIdleConns|
+|   sql_stat_connections_max_lifetime_closed_total|   The total number of connections closed due to SetConnMaxLifetime|
+|   sql_stat_max_open_connections                 |   Maximum number of open connections to the database|
+
+## PostgreSQL example
+
+```go
+package main
+
+import (
+	"database/sql"
+	"log"
+	"net/http"
+
+	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rodsher/sqlstat"
+)
+
+func main() {
+	db, err := sql.Open("postgres", "postgres://user:password@localhost/db")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stat := sqlstat.New()
+	err = stat.RegisterDB(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	prometheus.MustRegister(stat.GetCollectors()...)
+
+	http.ListenAndServe(":8000", promhttp.Handler())
+}
+```
+
+## Built with
 
 [Prometheus](https://prometheus.io)
 
