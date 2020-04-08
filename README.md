@@ -24,6 +24,9 @@ import "github.com/rodsher/sqlstat"
 
 ## Quick start
 
+Here we open connection with a PostgreSQL database server and register created connection pool
+in sqlstat. Also, we register collectors in Prometheus.
+
 ```go
 func main() {
 	db, _ := sql.Open("postgres", "postgres://user:password@localhost/db")
@@ -33,6 +36,36 @@ func main() {
 
 	prometheus.MustRegister(stat.GetCollectors()...)
 }
+```
+
+Request Prometheus metrics at 8000 TCP port using cURL.
+
+```bash
+$ curl http://localhost:8000/metrics
+# HELP sql_stat_connections_idle_total The number of idle connections
+# TYPE sql_stat_connections_idle_total gauge
+sql_stat_connections_idle_total 0
+# HELP sql_stat_connections_in_use_total The number of connections currently in use
+# TYPE sql_stat_connections_in_use_total gauge
+sql_stat_connections_in_use_total 0
+# HELP sql_stat_connections_max_idle_closed_total The total number of connections closed due to SetMaxIdleConns
+# TYPE sql_stat_connections_max_idle_closed_total gauge
+sql_stat_connections_max_idle_closed_total 0
+# HELP sql_stat_connections_max_lifetime_closed_total The total number of connections closed due to SetConnMaxLifetime
+# TYPE sql_stat_connections_max_lifetime_closed_total gauge
+sql_stat_connections_max_lifetime_closed_total 0
+# HELP sql_stat_connections_wait_duration_total The total time blocked waiting for a new connection
+# TYPE sql_stat_connections_wait_duration_total gauge
+sql_stat_connections_wait_duration_total 0
+# HELP sql_stat_connections_wait_total The total number of connections waited for
+# TYPE sql_stat_connections_wait_total gauge
+sql_stat_connections_wait_total 0
+# HELP sql_stat_max_open_connections Maximum number of open connections to the database
+# TYPE sql_stat_max_open_connections gauge
+sql_stat_max_open_connections 0
+# HELP sql_stat_open_connections_total The number of established connections both in use and idle
+# TYPE sql_stat_open_connections_total gauge
+sql_stat_open_connections_total 0
 ```
 
 ## Exposed metrics
@@ -81,6 +114,12 @@ func main() {
 
 	http.ListenAndServe(":8000", promhttp.Handler())
 }
+```
+
+Launch server
+
+```bash
+go run main.go
 ```
 
 ## Built with
