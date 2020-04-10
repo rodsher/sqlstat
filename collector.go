@@ -115,10 +115,10 @@ func (c *collector) registerOpenConnections() {
 	g := prometheus.NewGauge(prometheus.GaugeOpts{
 		Namespace: c.Namespace,
 		Subsystem: c.Subsystem,
-		Name:      "open_connections_total",
+		Name:      MetricOpenConnectionsTotal,
 		Help:      "The number of established connections both in use and idle",
 	})
-	c.metrics["open_connections_total"] = g
+	c.metrics[MetricOpenConnectionsTotal] = g
 }
 
 func (c *collector) registerConnectionsInUse() {
@@ -145,10 +145,10 @@ func (c *collector) registerConnectionsWait() {
 	g := prometheus.NewGauge(prometheus.GaugeOpts{
 		Namespace: c.Namespace,
 		Subsystem: c.Subsystem,
-		Name:      MetricConnectionsInUseTotal,
+		Name:      MetricConnectionsWaitTotal,
 		Help:      "The total number of connections waited for",
 	})
-	c.metrics[MetricConnectionsInUseTotal] = g
+	c.metrics[MetricConnectionsWaitTotal] = g
 }
 
 func (c *collector) registerConnectionsWaitDuration() {
