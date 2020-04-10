@@ -29,7 +29,7 @@ type (
 	}
 
 	collector struct {
-		DB      *sql.DB
+		DB *sql.DB
 		collectorOpts
 		metrics map[string]prometheus.Gauge
 	}

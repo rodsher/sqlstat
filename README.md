@@ -6,6 +6,11 @@ Package to collect client's connection metrics for database/sql.
 [![Go Report Card](https://goreportcard.com/badge/github.com/rodsher/sqlstat)](https://goreportcard.com/report/github.com/rodsher/sqlstat)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/git-chglog/git-chglog/blob/master/LICENSE)
 
+## Motivation
+
+It is very important to monitor RDBMS metrics and performance.
+But modern RDBMS can be used by multiple applications, and each application connected to the database using a pool of connections. *sqlstat* provides a package to collect statistics on how your microservice uses the pool of connection to RDBMS.
+
 ## Prerequisites
 
 sqlstat requires a Go version with Modules support and uses versioned import. So please make sure to initialize a Go module before installing.
