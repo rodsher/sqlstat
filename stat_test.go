@@ -129,7 +129,7 @@ func TestStat_RegisterDB_withoutPanic(t *testing.T) {
 	}
 }
 
-func TestStat_RegisterDB_NumGoroutineIncreased(t *testing.T) {
+func TestStat_RegisterDB_numGoroutineIncreased(t *testing.T) {
 	var (
 		stat = New()
 		db   = sql.DB{}
