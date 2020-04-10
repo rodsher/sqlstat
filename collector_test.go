@@ -2,6 +2,7 @@ package sqlstat
 
 import (
 	"database/sql"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -250,4 +251,65 @@ func TestCollector_RegisterMaxOpenConnections(t *testing.T) {
 	if len(c.metrics) != 1 {
 		t.Errorf("expect: %d, get: %d", 1, len(c.metrics))
 	}
+}
+
+func TestCollector_CollectMetricsAsync_numGoroutineIncreased(t *testing.T) {
+	t.Parallel()
+	var (
+		n = runtime.NumGoroutine()
+		c = newCollector().withDB(&sql.DB{}).withOpts(Opts{
+			Namespace: "sql",
+			Subsystem: "stat",
+			Interval:  5 * time.Second,
+		})
+	)
+
+	c.registerMetrics()
+	c.collectMetricsAsync()
+
+	// wait until runtime launched go routines
+	time.Sleep(50 * time.Millisecond)
+
+	if runtime.NumGoroutine() <= n {
+		t.Error("num goroutine must be increased")
+	}
+}
+
+func TestCollector_CollectMetricsPeriodically(t *testing.T) {
+	metrics := make(chan metric)
+	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
+		Namespace: "sql",
+		Subsystem: "stat",
+		Interval:  5 * time.Second,
+	})
+
+	c.registerMetrics()
+	go c.collectMetricsPeriodically(metrics)
+
+	for i := 0; i < collectorCount; i++ {
+		<-metrics
+	}
+
+	// If all messages were read from the metrics channel, metrics were collected
+	// and written to the channel
+	close(metrics)
+}
+
+func TestCollector_UpdateMetrics(t *testing.T) {
+	metrics := make(chan metric)
+	c := newCollector().withDB(&sql.DB{}).withOpts(Opts{
+		Namespace: "sql",
+		Subsystem: "stat",
+		Interval:  5 * time.Second,
+	})
+
+	c.registerMetrics()
+	go c.updateMetrics(metrics)
+
+	for i := 0; i < collectorCount; i++ {
+		metrics <- metric{"connections_in_use_total", 0}
+	}
+
+	// If loop completed, metrics were read from channel
+	close(metrics)
 }
