@@ -142,8 +142,6 @@ func BenchmarkCollector_RegisterMetrics(b *testing.B) {
 }
 
 func TestCollector_CollectMetricsAsync_numGoroutineIncreased(t *testing.T) {
-	t.Parallel()
-
 	var (
 		n = runtime.NumGoroutine()
 		c = newCollector().withDB(&sql.DB{}).withOpts(Opts{
@@ -173,6 +171,7 @@ func TestCollector_CollectMetricsPeriodically(t *testing.T) {
 	})
 
 	c.registerMetrics()
+
 	go c.collectMetricsPeriodically(metrics)
 
 	for i := 0; i < collectorCount; i++ {
@@ -193,6 +192,7 @@ func TestCollector_UpdateMetrics(t *testing.T) {
 	})
 
 	c.registerMetrics()
+
 	go c.updateMetrics(metrics)
 
 	for i := 0; i < collectorCount; i++ {
